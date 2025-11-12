@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'br.com.ajudalaguna.app',
-  appName: 'Ajuda Laguna',
+  appId: 'br.com.gmlaguna.app',
+  appName: 'GM Laguna',
   webDir: 'dist'
 };
 
