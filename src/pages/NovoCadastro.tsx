@@ -412,7 +412,7 @@ const NovoCadastro = () => {
       }
 
       // Preparar dados do morador
-      const moradorData = {
+      const moradorData: any = {
         user_id: user.id,
         nome_completo: nomeCompleto,
         cpf: cpf || null,
@@ -424,29 +424,32 @@ const NovoCadastro = () => {
         recebe_auxilio: recebeAuxilio,
         qual_auxilio: qualAuxilio || null,
         tempo_situacao_rua: tempoSituacaoRua || null,
-        motivo_situacao_rua: motivoSituacaoRua || null,
         tempo_em_laguna: tempoEmLaguna || null,
         tempo_pretende_ficar: tempoPretendeFicar || null,
         procurou_assistencia_social: procurouAssistencia,
         qual_servico_procurou: qualServico || null,
         local_abordagem: localAbordagem,
-        bairro: bairro || null,
-        rua: rua || null,
-        informacoes_local: informacoesLocal || null,
         possui_vicios: possuiVicios,
         quais_vicios: quaisVicios || null,
         passagens_policia: passagensPolicia,
         observacoes_passagens: observacoesPassagens || null,
-        abordagens_anteriores: abordagensAnteriores || null,
         foto_url: fotoUrl || (isEditMode && fotoPreview ? fotoPreview : null),
         observacoes: observacoes || null,
         status_sincronizacao: 'enviado',
         // Rastreamento de autoria (apenas para novos registros)
         ...(isEditMode ? {} : {
           criado_por_id: userId,
-          criado_por_nome: userEmail,
         }),
       };
+
+      // Adicionar campos opcionais apenas se existirem no schema
+      // Estes campos serão adicionados após executar as migrações SQL
+      if (motivoSituacaoRua) moradorData.motivo_situacao_rua = motivoSituacaoRua;
+      if (bairro) moradorData.bairro = bairro;
+      if (rua) moradorData.rua = rua;
+      if (informacoesLocal) moradorData.informacoes_local = informacoesLocal;
+      if (abordagensAnteriores) moradorData.abordagens_anteriores = abordagensAnteriores;
+      if (userEmail && !isEditMode) moradorData.criado_por_nome = userEmail;
 
       console.log("📝 Dados preparados:", moradorData);
 
