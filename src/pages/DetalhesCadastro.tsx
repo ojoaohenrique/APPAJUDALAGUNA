@@ -380,7 +380,7 @@ const DetalhesCadastro = () => {
             </Card>
 
             {/* Observações */}
-            {(morador.observacoes || morador.observacoes_passagens) && (
+            {(morador.observacoes || morador.observacoes_passagens || morador.abordagens_anteriores) && (
               <Card className="border-2">
                 <CardHeader className="bg-primary/5">
                   <CardTitle className="flex items-center gap-2 text-xl">
@@ -389,6 +389,12 @@ const DetalhesCadastro = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
+                  {morador.abordagens_anteriores && (
+                    <div className="bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-300 dark:border-blue-800 rounded-lg p-5">
+                      <p className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-3 uppercase tracking-wide">Abordagens Anteriores</p>
+                      <p className="text-base text-blue-800 dark:text-blue-200 leading-relaxed font-medium">{morador.abordagens_anteriores}</p>
+                    </div>
+                  )}
                   {morador.observacoes && (
                     <div className="bg-amber-50 dark:bg-amber-950/20 border-2 border-amber-300 dark:border-amber-800 rounded-lg p-5">
                       <p className="text-sm font-bold text-amber-900 dark:text-amber-100 mb-3 uppercase tracking-wide">Observações Gerais</p>

@@ -102,7 +102,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 pb-20">
         {!collapsed && profile && (
           <div className="mb-3 p-3 bg-secondary rounded-lg">
             <p className="text-sm font-medium">{profile.nome_completo}</p>

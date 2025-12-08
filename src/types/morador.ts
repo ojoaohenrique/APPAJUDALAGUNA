@@ -37,6 +37,7 @@ export interface Morador {
   quais_vicios?: string;
   passagens_policia: boolean;
   observacoes_passagens?: string;
+  abordagens_anteriores?: string;
   
   // Foto
   foto_url?: string;

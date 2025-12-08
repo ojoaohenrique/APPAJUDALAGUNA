@@ -62,6 +62,7 @@ const NovoCadastro = () => {
   const [quaisVicios, setQuaisVicios] = useState("");
   const [passagensPolicia, setPassagensPolicia] = useState(false);
   const [observacoesPassagens, setObservacoesPassagens] = useState("");
+  const [abordagensAnteriores, setAbordagensAnteriores] = useState("");
   const [observacoes, setObservacoes] = useState("");
 
   // Foto principal (identificação)
@@ -187,6 +188,7 @@ const NovoCadastro = () => {
             setQuaisVicios(data.quais_vicios || "");
             setPassagensPolicia(data.passagens_policia || false);
             setObservacoesPassagens(data.observacoes_passagens || "");
+            setAbordagensAnteriores(data.abordagens_anteriores || "");
             setObservacoes(data.observacoes || "");
             if (data.foto_url) {
               setFotoPreview(data.foto_url);
@@ -232,6 +234,114 @@ const NovoCadastro = () => {
         setFotoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const capturarFotoPrincipal = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' } 
+      });
+      
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      // Aguardar o vídeo carregar
+      await new Promise((resolve) => {
+        video.onloadedmetadata = resolve;
+      });
+      
+      // Criar canvas para capturar a imagem
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(video, 0, 0);
+      
+      // Parar o stream
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Converter para blob e criar arquivo
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `foto-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          setFoto(file);
+          setFotoPreview(canvas.toDataURL('image/jpeg'));
+        }
+      }, 'image/jpeg', 0.9);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao acessar câmera",
+        description: error.message || "Não foi possível acessar a câmera. Verifique as permissões.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const capturarFotoAdicional = async () => {
+    const MAX_FOTOS = 15;
+    const totalAtual = fotosAdicionaisExistentes.length + fotosAdicionais.length;
+    
+    if (totalAtual >= MAX_FOTOS) {
+      toast({
+        title: "Limite atingido",
+        description: "Você já adicionou o máximo de 15 fotos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } // Câmera traseira por padrão
+      });
+      
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      // Aguardar o vídeo carregar
+      await new Promise((resolve) => {
+        video.onloadedmetadata = resolve;
+      });
+      
+      // Criar canvas para capturar a imagem
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(video, 0, 0);
+      
+      // Parar o stream
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Converter para blob e criar arquivo
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `foto-adicional-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          setFotosAdicionais(prev => [...prev, file]);
+          
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setFotosAdicionaisPreview(prev => [...prev, reader.result as string]);
+          };
+          reader.readAsDataURL(file);
+          
+          toast({
+            title: "Foto capturada",
+            description: "Foto adicionada com sucesso!",
+          });
+        }
+      }, 'image/jpeg', 0.9);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao acessar câmera",
+        description: error.message || "Não foi possível acessar a câmera. Verifique as permissões.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -391,6 +501,7 @@ const NovoCadastro = () => {
         quais_vicios: quaisVicios || null,
         passagens_policia: passagensPolicia,
         observacoes_passagens: observacoesPassagens || null,
+        abordagens_anteriores: abordagensAnteriores || null,
         foto_url: fotoUrl || (isEditMode && fotoPreview ? fotoPreview : null),
         observacoes: observacoes || null,
         status_sincronizacao: 'enviado',
@@ -551,11 +662,21 @@ const NovoCadastro = () => {
                   />
                 </div>
               )}
-              <div className="flex gap-2">
-                <Label htmlFor="foto-upload" className="flex-1">
-                  <div className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-secondary transition">
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-secondary transition"
+                  onClick={capturarFotoPrincipal}
+                >
+                  <Camera className="h-5 w-5" />
+                  <span className="text-sm">Tirar Foto</span>
+                </Button>
+                
+                <Label htmlFor="foto-upload" className="cursor-pointer">
+                  <div className="h-full flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-lg hover:bg-secondary transition">
                     <Upload className="h-5 w-5" />
-                    <span>Escolher Foto Principal</span>
+                    <span className="text-sm">Escolher Arquivo</span>
                   </div>
                   <Input
                     id="foto-upload"
@@ -855,6 +976,20 @@ const NovoCadastro = () => {
               )}
 
               <div className="space-y-2">
+                <Label htmlFor="abordagensAnteriores">Abordagens Anteriores</Label>
+                <Textarea
+                  id="abordagensAnteriores"
+                  value={abordagensAnteriores}
+                  onChange={(e) => setAbordagensAnteriores(e.target.value)}
+                  placeholder="Registre se este indivíduo já foi abordado anteriormente (datas, locais, observações)..."
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Use este campo para registrar quando os guardas abordarem o mesmo indivíduo mais de uma vez
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="observacoes">Observações Gerais</Label>
                 <Textarea
                   id="observacoes"
@@ -934,26 +1069,34 @@ const NovoCadastro = () => {
                 </div>
               )}
 
-              {/* Botão para adicionar fotos */}
+              {/* Botões para adicionar fotos */}
               {(fotosAdicionaisExistentes.length + fotosAdicionaisPreview.length) < 15 ? (
-                <Label htmlFor="fotos-adicionais-upload" className="w-full cursor-pointer">
-                  <div className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-border rounded-lg hover:bg-secondary hover:border-primary transition-all">
-                    <Upload className="h-5 w-5" />
-                    <span className="font-medium">
-                      {fotosAdicionaisPreview.length > 0 || fotosAdicionaisExistentes.length > 0
-                        ? 'Adicionar Mais Fotos'
-                        : 'Clique para Adicionar Fotos (até 15)'}
-                    </span>
-                  </div>
-                  <Input
-                    id="fotos-adicionais-upload"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleFotosAdicionaisChange}
-                  />
-                </Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-secondary transition"
+                    onClick={capturarFotoAdicional}
+                  >
+                    <Camera className="h-5 w-5" />
+                    <span className="text-sm font-medium">Tirar Foto</span>
+                  </Button>
+                  
+                  <Label htmlFor="fotos-adicionais-upload" className="cursor-pointer">
+                    <div className="h-full flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-lg hover:bg-secondary transition">
+                      <Upload className="h-5 w-5" />
+                      <span className="text-sm font-medium">Escolher Arquivos</span>
+                    </div>
+                    <Input
+                      id="fotos-adicionais-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleFotosAdicionaisChange}
+                    />
+                  </Label>
+                </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-muted rounded-lg bg-muted/50">
                   <span className="font-medium text-muted-foreground">
@@ -977,7 +1120,7 @@ const NovoCadastro = () => {
           </Card>
 
           {/* Botões */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 pb-20">
             <Button
               type="button"
               variant="outline"

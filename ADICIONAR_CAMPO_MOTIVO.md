@@ -1,33 +1,41 @@
-# Adicionar Campo "Motivo da Situação de Rua"
+# 🔧 CORREÇÃO URGENTE - Campo "Motivo da Situação de Rua"
 
-## 📋 Instruções para Adicionar no Supabase
+## ⚠️ ERRO ATUAL
+```
+Could not find the 'motivo_situacao_rua' column of 'moradores' in the schema cache
+```
+
+## 📋 SOLUÇÃO - Execute no Supabase AGORA
 
 ### 1. Acesse o Supabase
 1. Vá em: https://supabase.com/dashboard
-2. Selecione seu projeto
-3. Vá em **SQL Editor** (no menu lateral)
+2. Selecione seu projeto **ajudalaguna-app-web**
+3. Clique em **SQL Editor** (no menu lateral esquerdo)
 
-### 2. Execute este SQL
+### 2. Cole e Execute este SQL
 
 ```sql
 -- Adicionar coluna motivo_situacao_rua na tabela moradores
-ALTER TABLE moradores 
-ADD COLUMN motivo_situacao_rua TEXT;
+ALTER TABLE public.moradores 
+ADD COLUMN IF NOT EXISTS motivo_situacao_rua TEXT;
 
 -- Adicionar comentário na coluna
-COMMENT ON COLUMN moradores.motivo_situacao_rua IS 'Motivo pelo qual a pessoa está em situação de rua';
+COMMENT ON COLUMN public.moradores.motivo_situacao_rua IS 'Motivo que levou a pessoa à situação de rua';
 ```
 
-### 3. Clique em "Run" para executar
+### 3. Clique em "RUN" (ou pressione Ctrl+Enter)
 
-### 4. Verifique se foi criado
+### 4. Verifique se funcionou
 ```sql
--- Verificar estrutura da tabela
+-- Verificar se a coluna foi criada
 SELECT column_name, data_type, is_nullable
 FROM information_schema.columns
-WHERE table_name = 'moradores'
-ORDER BY ordinal_position;
+WHERE table_schema = 'public' 
+  AND table_name = 'moradores'
+  AND column_name = 'motivo_situacao_rua';
 ```
+
+**Resultado esperado:** Deve retornar 1 linha mostrando a coluna `motivo_situacao_rua`
 
 ---
 
