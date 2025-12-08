@@ -412,6 +412,8 @@ const NovoCadastro = () => {
       }
 
       // Preparar dados do morador
+      // NOTA: Campos comentados não existem no banco ainda
+      // Execute as migrações SQL para habilitá-los
       const moradorData: any = {
         user_id: user.id,
         nome_completo: nomeCompleto,
@@ -442,14 +444,13 @@ const NovoCadastro = () => {
         }),
       };
 
-      // Adicionar campos opcionais apenas se existirem no schema
-      // Estes campos serão adicionados após executar as migrações SQL
-      if (motivoSituacaoRua) moradorData.motivo_situacao_rua = motivoSituacaoRua;
-      if (bairro) moradorData.bairro = bairro;
-      if (rua) moradorData.rua = rua;
-      if (informacoesLocal) moradorData.informacoes_local = informacoesLocal;
-      if (abordagensAnteriores) moradorData.abordagens_anteriores = abordagensAnteriores;
-      if (userEmail && !isEditMode) moradorData.criado_por_nome = userEmail;
+      // CAMPOS DESABILITADOS ATÉ EXECUTAR MIGRAÇÕES SQL:
+      // - motivo_situacao_rua
+      // - bairro
+      // - rua
+      // - informacoes_local
+      // - abordagens_anteriores
+      // - criado_por_nome
 
       console.log("📝 Dados preparados:", moradorData);
 
