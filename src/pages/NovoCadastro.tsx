@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Camera, Upload, MapPin, User, FileText, MapPinned, Loader2, X, Image } from "lucide-react";
 import { CriadorInfo } from "@/components/CriadorInfo";
+import { CameraModal } from "@/components/CameraModal";
 import { format, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ptBR } from "date-fns/locale";
@@ -73,6 +74,10 @@ const NovoCadastro = () => {
   const [fotosAdicionais, setFotosAdicionais] = useState<File[]>([]);
   const [fotosAdicionaisPreview, setFotosAdicionaisPreview] = useState<string[]>([]);
   const [fotosAdicionaisExistentes, setFotosAdicionaisExistentes] = useState<Array<{id: string, url: string, descricao?: string}>>([]);
+
+  // Estados para modais de câmera
+  const [cameraModalOpen, setCameraModalOpen] = useState(false);
+  const [cameraModalAdicionalOpen, setCameraModalAdicionalOpen] = useState(false);
 
   // Funções de máscara
   const formatCPF = (value: string) => {
@@ -237,50 +242,20 @@ const NovoCadastro = () => {
     }
   };
 
-  const capturarFotoPrincipal = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
-      });
-      
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.play();
-      
-      // Aguardar o vídeo carregar
-      await new Promise((resolve) => {
-        video.onloadedmetadata = resolve;
-      });
-      
-      // Criar canvas para capturar a imagem
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(video, 0, 0);
-      
-      // Parar o stream
-      stream.getTracks().forEach(track => track.stop());
-      
-      // Converter para blob e criar arquivo
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], `foto-${Date.now()}.jpg`, { type: 'image/jpeg' });
-          setFoto(file);
-          setFotoPreview(canvas.toDataURL('image/jpeg'));
-        }
-      }, 'image/jpeg', 0.9);
-      
-    } catch (error: any) {
-      toast({
-        title: "Erro ao acessar câmera",
-        description: error.message || "Não foi possível acessar a câmera. Verifique as permissões.",
-        variant: "destructive",
-      });
-    }
+  const capturarFotoPrincipal = () => {
+    setCameraModalOpen(true);
   };
 
-  const capturarFotoAdicional = async () => {
+  const handleCaptureFotoPrincipal = (file: File) => {
+    setFoto(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const capturarFotoAdicional = () => {
     const MAX_FOTOS = 15;
     const totalAtual = fotosAdicionaisExistentes.length + fotosAdicionais.length;
     
@@ -293,56 +268,17 @@ const NovoCadastro = () => {
       return;
     }
     
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Câmera traseira por padrão
-      });
-      
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.play();
-      
-      // Aguardar o vídeo carregar
-      await new Promise((resolve) => {
-        video.onloadedmetadata = resolve;
-      });
-      
-      // Criar canvas para capturar a imagem
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(video, 0, 0);
-      
-      // Parar o stream
-      stream.getTracks().forEach(track => track.stop());
-      
-      // Converter para blob e criar arquivo
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const file = new File([blob], `foto-adicional-${Date.now()}.jpg`, { type: 'image/jpeg' });
-          setFotosAdicionais(prev => [...prev, file]);
-          
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setFotosAdicionaisPreview(prev => [...prev, reader.result as string]);
-          };
-          reader.readAsDataURL(file);
-          
-          toast({
-            title: "Foto capturada",
-            description: "Foto adicionada com sucesso!",
-          });
-        }
-      }, 'image/jpeg', 0.9);
-      
-    } catch (error: any) {
-      toast({
-        title: "Erro ao acessar câmera",
-        description: error.message || "Não foi possível acessar a câmera. Verifique as permissões.",
-        variant: "destructive",
-      });
-    }
+    setCameraModalAdicionalOpen(true);
+  };
+
+  const handleCaptureFotoAdicional = (file: File) => {
+    setFotosAdicionais(prev => [...prev, file]);
+    
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFotosAdicionaisPreview(prev => [...prev, reader.result as string]);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleFotosAdicionaisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1145,6 +1081,23 @@ const NovoCadastro = () => {
             </Button>
           </div>
         </form>
+
+        {/* Modais de Câmera */}
+        <CameraModal
+          isOpen={cameraModalOpen}
+          onClose={() => setCameraModalOpen(false)}
+          onCapture={handleCaptureFotoPrincipal}
+          facingMode="user"
+          title="Foto Principal de Identificação"
+        />
+
+        <CameraModal
+          isOpen={cameraModalAdicionalOpen}
+          onClose={() => setCameraModalAdicionalOpen(false)}
+          onCapture={handleCaptureFotoAdicional}
+          facingMode="environment"
+          title="Foto Adicional"
+        />
       </div>
     </AppLayout>
   );
