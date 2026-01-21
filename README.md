@@ -5,8 +5,15 @@ Ajuda Laguna App
 Sistema de apoio social e operacional utilizado pela Guarda Municipal de Laguna/SC para o cadastro e acompanhamento de pessoas em situação de rua, com foco em assistência, orientação e encaminhamento adequado.
 
 ## 📱 Sobre o Projeto
+O Ajuda Laguna é um sistema desenvolvido para atender uma demanda real da Guarda Municipal de Laguna, que atua diariamente em ocorrências envolvendo pessoas em situação de vulnerabilidade social.
+
+A aplicação foi criada para organizar informações, registrar abordagens de caráter social e apoiar ações de auxílio, sempre com foco na dignidade humana, assistência e apoio, e não em ações repressivas.
+
+O sistema auxilia a Guarda Municipal a trabalhar de forma mais integrada com os setores sociais da Prefeitura, evitando perda de informações e facilitando o acompanhamento dos atendimentos realizados.
 
 Aplicação web e mobile (Android) para registro de abordagens e ocorrências, com captura de GPS, upload de fotos e sistema de permissões baseado em cargos.
+⚠️ Uso restrito: para utilizar, testar ou implantar o sistema, é necessário entrar em contato diretamente comigo ou com a Guarda Municipal de Laguna.
+
 
 ### ✨ Funcionalidades
 
