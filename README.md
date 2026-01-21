@@ -1,4 +1,4 @@
-Ajuda Laguna App
+####Ajuda Laguna App
 
 
 
@@ -12,7 +12,8 @@ A aplicação foi criada para organizar informações, registrar abordagens de c
 O sistema auxilia a Guarda Municipal a trabalhar de forma mais integrada com os setores sociais da Prefeitura, evitando perda de informações e facilitando o acompanhamento dos atendimentos realizados.
 
 Aplicação web e mobile (Android) para registro de abordagens e ocorrências, com captura de GPS, upload de fotos e sistema de permissões baseado em cargos.
-⚠️ Uso restrito: para utilizar, testar ou implantar o sistema, é necessário entrar em contato diretamente comigo ou com a Guarda Municipal de Laguna.
+
+###⚠️ Uso restrito: para utilizar, testar ou implantar o sistema, é necessário entrar em contato diretamente comigo ou com a Guarda Municipal de Laguna.
 
 
 ### ✨ Funcionalidades
